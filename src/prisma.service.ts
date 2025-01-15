@@ -3,10 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  onModuleInit() {
-    throw new Error('Method not implemented.');
-  }
-  async OnModuleInit() {
+  async onModuleInit() {
     await this.$connect();
   }
 }
