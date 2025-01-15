@@ -2,16 +2,28 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import { CompanyModule } from './company/company.module';
 import { JobModule } from './job/job.module';
 import { ApplicationModule } from './application/application.module';
+import { ApplicationService } from './application/application.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('SECRET_KEY'),
+        signOptions: { expiresIn: '1d' },
+      }),
+      inject: [ConfigService],
+    }),
     ConfigModule,
     UserModule,
     CompanyModule,
@@ -19,6 +31,6 @@ import { ApplicationModule } from './application/application.module';
     ApplicationModule,
   ],
   controllers: [AppController, UserController],
-  providers: [AppService, PrismaService, UserService],
+  providers: [AppService, PrismaService, UserService, ApplicationService],
 })
 export class AppModule {}
