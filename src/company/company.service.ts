@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { RegisterCompanyDto } from './dto/company.dto';
+import { RegisterCompanyDto, UpdateCompanyDto } from './dto/company.dto';
 
 @Injectable()
 export class CompanyService {
@@ -38,11 +38,11 @@ export class CompanyService {
     return newCompany;
   }
 
-  getAllCompany(userId: string) {
+  async getAllCompany(userId: string) {
     if (!userId) {
       throw new UnauthorizedException('User not found');
     }
-    const companies = this.prisma.company.findMany({ where: { userId } });
+    const companies = await this.prisma.company.findMany({ where: { userId } });
 
     if (!companies) {
       throw new NotFoundException('Company not found');
@@ -51,5 +51,64 @@ export class CompanyService {
     return companies;
   }
 
-  getCompanyById() {}
+  //  Get Company By Id
+  async getCompanyById(userId: string, companyId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const company = await this.prisma.company.findFirst({
+      where: { id: companyId, userId },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return company;
+  }
+
+  //  Delete Company By Id
+  async deleteCompanyById(userId: string, companyId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const company = await this.prisma.company.findFirst({
+      where: { id: companyId, userId },
+    });
+
+    console.log(company);
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    const deletedCompany = await this.prisma.company.delete({
+      where: { id: companyId },
+    });
+
+    return deletedCompany;
+  }
+
+  // Update Company By Id
+  async updateCompanyById(
+    userId: string,
+    companyId: string,
+    updateCompanyDto: UpdateCompanyDto,
+  ) {
+    if (!userId) {
+      throw new UnauthorizedException('User not found');
+    }
+    const company = await this.prisma.company.update({
+      where: { id: companyId },
+      data: updateCompanyDto,
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return company;
+  }
 }
