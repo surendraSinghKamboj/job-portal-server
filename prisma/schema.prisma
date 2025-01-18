@@ -43,8 +43,8 @@ model Job {
   jobType         String
   experienceLevel String
   positions       Int
-  companyId       String        @db.ObjectId
   company         Company       @relation(fields: [companyId], references: [id])
+  companyId       String        @db.ObjectId
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   User            User?         @relation(fields: [userId], references: [id])
